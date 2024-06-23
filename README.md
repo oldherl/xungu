@@ -10,6 +10,11 @@ This tool is intended to use only on an Arch Linux system with [archlinuxcn] rep
 * python3
 * pyalpm
 
+## Installation
+Install from [archlinuxcn]: `pacman -S xungu-git`
+
+Or you can just download and run manually. But why?
+
 ## Usage
 `$ ./xungu`
 ```
