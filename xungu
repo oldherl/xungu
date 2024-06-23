@@ -1,0 +1,42 @@
+#!/usr/bin/python3
+# SPDX-License-Identifier: GPL-3.0
+
+from pyalpm import Handle
+from datetime import datetime, timezone
+
+def possibly_from_archcn(pkg):
+    packager = pkg.packager
+    if packager.startswith('lilac (on behalf of '):
+        return True
+    if packager.find('archlinuxcn') >= 0:
+        return True
+    return False
+
+def dropped_found(p):
+    print(f'{p.name} {p.version}')
+    print(f'    {p.desc}')
+    print(f'    Packaged by {p.packager}')
+    # Use naive local time zone
+    build_date = datetime.fromtimestamp(p.builddate, None).isoformat(sep=' ')
+    install_date = datetime.fromtimestamp(p.installdate, None).isoformat(sep=' ')
+    print(f'    Packaged at {build_date}')
+    print(f'    Installed at {install_date}')
+
+def main():
+    handle = Handle("/", "/var/lib/pacman")
+    localdb = handle.get_localdb()
+    archcn = handle.register_syncdb("archlinuxcn", 0)
+    archcn_list = archcn.pkgcache
+
+    if len(archcn_list)==0:
+        print('List is empty. Do you have [archlinuxcn] installed?')
+        return False
+
+    for p in localdb.pkgcache:
+        if possibly_from_archcn(p):
+            if not archcn.get_pkg(p.name):
+                dropped_found(p)
+    return True
+
+if __name__ == '__main__':
+    main()
