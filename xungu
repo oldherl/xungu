@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-# SPDX-License-Identifier: GPL-3.0
+# SPDX-License-Identifier: GPL-3.0-only
 
 from pyalpm import Handle
 from datetime import datetime, timezone
