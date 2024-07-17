@@ -12,7 +12,7 @@ def possibly_from_archcn(pkg):
         return True
     return False
 
-def dropped_found(p):
+def print_package(p, alternate):
     print(f'{p.name} {p.version}')
     print(f'    {p.desc}')
     print(f'    Packaged by {p.packager}')
@@ -21,12 +21,16 @@ def dropped_found(p):
     install_date = datetime.fromtimestamp(p.installdate, None).isoformat(sep=' ')
     print(f'    Packaged at {build_date}')
     print(f'    Installed at {install_date}')
+    if alternate:
+        print(f'    Consider replace it by {alternate}')
 
 def main():
     handle = Handle("/", "/var/lib/pacman")
     localdb = handle.get_localdb()
     archcn = handle.register_syncdb("archlinuxcn", 0)
     archcn_list = archcn.pkgcache
+    core = handle.register_syncdb("core", 0)
+    extra = handle.register_syncdb("extra", 0)
 
     if len(archcn_list)==0:
         print('List is empty. Do you have [archlinuxcn] installed?')
@@ -35,7 +39,15 @@ def main():
     for p in localdb.pkgcache:
         if possibly_from_archcn(p):
             if not archcn.get_pkg(p.name):
-                dropped_found(p)
+                alternate = ''
+                for suf in ["-git", "-svn", "-hg"]:
+                    if p.name.endswith(suf):
+                        short = p.name[:-len(suf)]
+                        for r in (core, extra, archcn):
+                            if r.get_pkg(short):
+                                ps = r.get_pkg(short)
+                                alternate = f'{r.name}/{ps.name} {ps.version}'
+                print_package(p, alternate)
     return True
 
 if __name__ == '__main__':
