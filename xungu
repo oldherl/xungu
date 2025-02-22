@@ -40,9 +40,9 @@ def main():
         if possibly_from_archcn(p):
             if not archcn.get_pkg(p.name):
                 alternate = ''
-                for suf in ["-git", "-svn", "-hg"]:
+                for suf in ["", "-git", "-svn", "-hg"]:
                     if p.name.endswith(suf):
-                        short = p.name[:-len(suf)]
+                        short = p.name[:len(p.name)-len(suf)]
                         for r in (core, extra, archcn):
                             if r.get_pkg(short):
                                 ps = r.get_pkg(short)
